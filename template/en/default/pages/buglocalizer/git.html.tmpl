@@ -1,0 +1,74 @@
+[% title = BLOCK %]
+  Git Settings for Bug Localization
+[% END %]
+
+[% PROCESS global/header.html.tmpl title = title
+                                   style_urls = ['skins/standard/admin.css']
+                                   doc_section = "administration.html"
+%]
+
+<script type="text/javascript" src="extensions/BugLocalizer/web/yui-min.js"></script>
+<script>
+function hideAccountInfos(){
+	Y.one("#username_row").hide();
+	Y.one("#password_row").hide();
+}
+
+function showAccountInfos(){
+	Y.one("#username_row").show();
+	Y.one("#password_row").show();
+}
+
+var Y = YUI().use('node', function(Y) {
+	Y.one('#public').on('change', hideAccountInfos);
+	Y.one('#private').on('change', showAccountInfos);
+});
+</script>
+[% IF product %]
+Successfully updated repository info for <b>[% product %]</b>. <br/><br/>
+<a href="/page.cgi?id=buglocalizer/git.html">Click here</a> if you want to input repository info for other products.<br/><br/>
+[% ELSE %]
+<h3> Git Account </h3>
+Please enter the Git account information that will be used to retrieve source code files<br/> for bug localization.<br/> <br/>
+<form id="git_form" action="page.cgi?id=buglocalizer/git.html" method="post">
+<table>
+<tbody>
+<tr>
+<th align="right" width="150">Product:</th>
+<td><select id="product" name="product">
+[% FOREACH product = products %]
+<option value="[% product.name %]"> [% product.name %] </option>
+[% END %]
+</select>
+</td>
+</tr>
+<tr>
+<th align="right" width="150">Repository URL:</th>
+<td><input id="url" name="url" type="text" size="40"/></td>
+</tr>
+<tr>
+<th align="right">Access Type:</th>
+<td><input id="public" type="radio" value="Public" name="access_type" checked="true">Public</input>
+<input id="private" type="radio" value="Private" name="access_type">Private</input>
+</td>
+</tr>
+<tr id="username_row" style="display:none;">
+<th align="right">Username:</th>
+<td><input id="username" name="username" type="text" size="35"/></td>
+</tr>
+<tr id="password_row" style="display:none;">
+<th align="right">Password:</th>
+<td><input id="password" name="password" type="password" size="35"/></td>
+</tr>
+
+</div>
+<tr>
+<th align="right"></th>
+<td align="right">
+<input id="submit" type="submit" value="Save"/></td>
+</tr>
+</tbody>
+</table>
+</form>
+[% END %]
+[% PROCESS global/footer.html.tmpl %]

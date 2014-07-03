@@ -1,0 +1,45 @@
+<br>
+<div id="fixed_files_info" class="bz_default_hidden">
+<b> Fixed Files are located at revision : </b>
+<select id="fixed_files_revision" name="fixed_files_revision">
+[% FOREACH hash IN all_git_hash %]
+  <option value="[% hash %]">[% hash %]</option>
+[% END %]
+</select>
+<input type="text" id="fixed_files_input"></input>
+<input type="hidden" id="fixed_files" name="fixed_files"></input>
+<script type="text/javascript" src="extensions/BugLocalizer/web/gallery-multivalue-input-debug.js"></script>
+<link href="extensions/BugLocalizer/web/gallery-multivalue-input.css" rel="stylesheet" type="text/css" />
+<script>
+var Y = YUI({debug:true}).use('autocomplete', 'autocomplete-filters', 'autocomplete-highlighters',"gallery-multivalue-input", function (Y) {
+  var states = [
+    [% COMMA = "" %]
+    [% FOREACH filename = filenames %]
+        [% COMMA %][% "\'" %][% filename %][% "\'" %]
+        [% COMMA = "," %]
+    [% END %]
+  ,'bundles/org.eclipse.swt/Eclipse SWT Accessibility/win32/org/eclipse/swt/accessibility/Accessible.java'];
+  Y.one(document.body).addClass('yui3-skin-sam');
+  var node = Y.one('#fixed_files_input');
+  node.plug(Y.Plugin.AutoComplete, {
+	    resultFilters    : 'phraseMatch',
+	    resultHighlighter: 'phraseMatch',
+	    source           : states
+  })
+  node.plug(Y.MultiValueInput);
+  var toggleFixInfo = function(e){
+	var fixedFilesNode = Y.one('#fixed_files_info');
+	if (e.target.get('value') == "FIXED"){
+		fixedFilesNode.removeClass('bz_default_hidden');
+	}else{
+		fixedFilesNode.addClass('bz_default_hidden');
+	}
+  }
+  Y.one('#resolution').on('change',toggleFixInfo);
+  Y.one('#resolution').on('load',toggleFixInfo);
+  Y.one('#changeform').on('submit',function(){
+	Y.one('#fixed_files').set('value',Y.one('#fixed_files_input').mvi.get('values').join());
+  });
+});</script>
+</div>
+

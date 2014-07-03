@@ -1,0 +1,65 @@
+<tr>
+    <th class="field_label">
+    <u> BUG LOCALIZER </u>
+    </th>
+</tr>
+<tr>
+    <th class="field_label">
+      Git Tag Version:
+    </th>
+    <td class="field_value">
+	<select id="git_tag_version">
+	  <option value="Latest Commit">Latest Commit</option>
+	[% FOREACH tag IN git_tags %]
+	  <option value="[% tag %]">[% tag %]</option>
+	[% END %]
+	</select>
+	<input id="localizeBtn" type="button" value="Localize">
+    </td>
+</tr>
+
+<tr>
+    <th class="field_label">
+      Possible Buggy Files:
+    </th>
+    <td class="field_value">
+	<script type="text/javascript" src="extensions/BugLocalizer/web/yui-min.js"></script>
+	<div class="yui3-skin-sam">
+	    <div id="possible_buggy_files"></div>
+	</div>
+	<script>
+	YUI().use("io","datatable", function (Y) {
+	    var possible_buggy_files = new Y.DataTable({
+		columns: ["Rank", "Filename"],
+		data   : null,
+	    });
+	    Y.one('#localizeBtn').on('click', function (e) {
+		e.preventDefault();
+	        var chosenVersion = Y.one('#git_tag_version').get('value');
+                possible_buggy_files.set('data',null);
+		possible_buggy_files.render('#possible_buggy_files').showMessage('Finding possible buggy files for '+chosenVersion+'...');
+		var data = '{"version":"1.1","method":"BugLocalizer.localize", "params":{"bug_id":"[% bug.id %]","git_tag_version":"'+chosenVersion+'","product":"[% bug.product %]"}}';
+		Y.io('/jsonrpc.cgi', {
+                    headers: {
+			'Content-Type': 'application/json',
+		    },
+		    method: 'POST',
+		    data: data,
+		    on: {
+		        success: function (id, result) {
+		            var json = Y.JSON.parse(result.responseText);
+			    possible_buggy_files.set('data',json.result.ranks);
+		        },
+			
+		        failure: function (id, result) {
+	    		    possible_buggy_files.render("#possible_buggy_files").showMessage('Failed');   
+		        }
+		    }
+		});
+	    });
+	    possible_buggy_files.render("#possible_buggy_files").showMessage('Please select source code version to localize');
+
+	});
+	</script>
+    </td>
+</tr>
